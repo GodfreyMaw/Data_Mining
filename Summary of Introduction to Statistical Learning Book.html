@@ -1,0 +1,324 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Statistical Learning (Python Edition) Summary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <header class="bg-blue-600 text-white py-6">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold">Introduction to Statistical Learning (Python Edition)</h1>
+            <p class="text-lg mt-2">Course: MSDA9223 - Data Mining and Information Retrieval</p>
+            <p class="text-md">Instructor: Dr. Pacificique Nizevimana | Date: July 6, 2025</p>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Overview Section -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-4">Overview</h2>
+            <p class="text-lg leading-relaxed">
+                <em>An Introduction to Statistical Learning</em> (Python edition, 1st printing July 5, 2023) by Gareth James, Daniela Witten, Trevor Hastie, and Robert Tibshirani provides a comprehensive introduction to statistical learning, emphasizing Python implementations using libraries like NumPy, pandas, scikit-learn, and PyTorch. The book covers supervised and unsupervised learning methods, from linear regression to deep learning, balancing theory with practical applications. It is a more accessible companion to <em>The Elements of Statistical Learning</em>, aimed at students and data science practitioners (pages vii–viii, 1–13).
+            </p>
+        </section>
+
+        <!-- Table of Contents -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-semibold mb-4">Table of Contents</h2>
+            <nav>
+                <ul class="list-disc pl-6 space-y-2">
+                    <li><a href="#chapter1" class="text-blue-600 hover:underline">Chapter 1: Introduction</a></li>
+                    <li><a href="#chapter2" class="text-blue-600 hover:underline">Chapter 2: Statistical Learning</a></li>
+                    <li><a href="#chapter3" class="text-blue-600 hover:underline">Chapter 3: Linear Regression</a></li>
+                    <li><a href="#chapter4" class="text-blue-600 hover:underline">Chapter 4: Classification</a></li>
+                    <li><a href="#chapter5" class="text-blue-600 hover:underline">Chapter 5: Resampling Methods</a></li>
+                    <li><a href="#chapter6" class="text-blue-600 hover:underline">Chapter 6: Linear Model Selection and Regularization</a></li>
+                    <li><a href="#chapter8" class="text-blue-600 hover:underline">Chapter 8: Tree-Based Methods</a></li>
+                    <li><a href="#chapter9" class="text-blue-600 hover:underline">Chapter 9: Support Vector Machines</a></li>
+                    <li><a href="#chapter10" class="text-blue-600 hover:underline">Chapter 10: Deep Learning</a></li>
+                    <li><a href="#chapter12" class="text-blue-600 hover:underline">Chapter 12: Unsupervised Learning</a></li>
+                </ul>
+            </nav>
+        </section>
+
+        <!-- Chapter Summaries -->
+        <section id="chapter1" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 1: Introduction</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Introduces statistical learning, distinguishing supervised (predicting an output based on inputs, like sales from advertising data) and unsupervised learning (finding patterns without outputs, like clustering customers). It outlines the book’s Python-based approach and structure (pages 1–13).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Supervised Learning</strong>: Involves predicting an output variable from input features. Regression predicts continuous outputs (e.g., sales amount), while classification predicts categorical outputs (e.g., buy or not buy). It uses labeled data to train models.</li>
+                        <li><strong>Unsupervised Learning</strong>: Analyzes data without output labels to find hidden structures. Clustering groups similar data points (e.g., customer segments), and principal component analysis (PCA) reduces data dimensions while preserving variance.</li>
+                        <li><strong>Data Types</strong>: Quantitative data are numerical (e.g., age, income), suitable for regression. Qualitative data are categorical (e.g., default status: yes/no), used in classification tasks.</li>
+                    </ul>
+                    <p class="mt-4">Note: Chapter 1 has no lab in the book, as it focuses on conceptual introduction.</p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Python Integration</h3>
+                    <p>Emphasizes Python libraries like pandas for data manipulation and matplotlib for visualization, making concepts accessible through code (page 12).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter2" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 2: Statistical Learning</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Explores foundations of statistical learning, focusing on how to assess model performance, understand the tradeoff between bias and variance, and choose between flexible and rigid models. Python tools like NumPy and pandas are used for data manipulation (pages 15–64).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Training and Test Error Rates</strong>: Training error measures how well a model fits the data it was trained on, often overly optimistic. Test error, calculated on unseen data, estimates real-world performance, guiding model selection to avoid overfitting.</li>
+                        <li><strong>Bias-Variance Decomposition</strong>: Explains model error as a sum of bias (error due to overly simple models) and variance (error due to sensitivity to training data). High bias leads to underfitting; high variance leads to overfitting. Balancing them optimizes prediction accuracy.</li>
+                        <li><strong>Parametric vs. Non-Parametric Models</strong>: Parametric models (e.g., linear regression) assume a fixed form (like a line) and estimate parameters, making them simpler but less flexible. Non-parametric models (e.g., k-nearest neighbors) adapt to data patterns without fixed assumptions, offering flexibility but requiring more data.</li>
+                        <li><strong>Python Lab</strong>: Uses pandas.DataFrame to load and manipulate datasets (e.g., creating feature matrices) and matplotlib to visualize relationships (e.g., scatter plots of predictions vs. actual values), enabling practical exploration of model performance (pages 40–62).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/GodfreyMaw/Data_Mining/blob/main/chapt2.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Practical Note</h3>
+                    <p>The bias-variance tradeoff is critical for model selection, with Python examples illustrating overfitting risks (page 47).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter3" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 3: Linear Regression</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Covers linear regression for predicting continuous outcomes, such as sales or house prices, including simple and multiple regression, diagnostic tools, and extensions like polynomial terms. Python labs use scikit-learn for model fitting (pages 69–134).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Simple Linear Regression</strong>: Models the relationship between one predictor (e.g., advertising budget) and a continuous response (e.g., sales) as a straight line, y = β₀ + β₁x. It estimates coefficients (β₀, β₁) to minimize the sum of squared differences between predicted and actual values (pages 70–86).</li>
+                        <li><strong>Multiple Linear Regression</strong>: Extends simple regression to multiple predictors (e.g., TV, radio, and newspaper budgets), modeling y = β₀ + β₁x₁ + β₂x₂ + ... + βₚxₚ. It handles interactions (e.g., TV*radio) to capture combined effects of predictors (pages 87–99).</li>
+                        <li><strong>Diagnostics</strong>: Uses residual plots (differences between predicted and actual values) to check model assumptions (e.g., linearity, constant variance). Leverage identifies influential observations, and variance inflation factor (VIF) detects multicollinearity among predictors, ensuring model reliability (pages 100–117).</li>
+                        <li><strong>Python Lab</strong>: Employs scikit-learn’s LinearRegression() to fit models and compute coefficients, and patsy to create design matrices (e.g., including interaction terms), simplifying regression implementation and diagnostics (pages 116–134).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_03.6_Linear_Regression.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Application</h3>
+                    <p>Linear regression’s interpretability aids tasks like sales prediction, with Python simplifying diagnostics (page 118).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter4" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 4: Classification</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Focuses on classification methods for predicting categorical outcomes, such as whether a customer defaults on a loan, using techniques like logistic regression and discriminant analysis. Python labs apply these to datasets like credit default (pages 135–199).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Logistic Regression</strong>: Predicts the probability of a binary outcome (e.g., default: yes/no) by modeling the log-odds as a linear combination of predictors, log(p/(1-p)) = β₀ + β₁x₁ + ... + βₚxₚ. It uses maximum likelihood to estimate coefficients, optimizing fit to the data (pages 139–154).</li>
+                        <li><strong>Linear and Quadratic Discriminant Analysis (LDA/QDA)</strong>: LDA assumes classes have a common covariance matrix and models data as multivariate normal, assigning observations to the class with the highest probability. QDA allows different covariance matrices per class, offering flexibility for non-linear boundaries (pages 156–168).</li>
+                        <li><strong>Python Lab</strong>: Uses scikit-learn’s LogisticRegression to fit binary classifiers and StandardScaler to standardize features, ensuring stable model training. It also implements LDA/QDA for comparison on real datasets (pages 174–199).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_04.7_Classification_Methods.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Consideration</h3>
+                    <p>Scikit-learn’s confusion matrix tools simplify classification performance evaluation (page 195).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter5" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 5: Resampling Methods</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Introduces resampling techniques to assess model performance and estimate uncertainty, crucial for robust predictions. Python labs demonstrate these methods on various datasets (pages 201–228).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>K-Fold Cross-Validation</strong>: Splits data into k equal parts (folds), trains the model on k-1 folds, and tests on the remaining fold, repeating k times. It averages the test errors to estimate how well the model generalizes to new data, reducing reliance on a single train-test split (pages 203–211).</li>
+                        <li><strong>Leave-One-Out Cross-Validation (LOOCV)</strong>: A special case of k-fold where k equals the number of observations. It trains on all but one data point and tests on that point, repeating for each observation. This provides a precise but computationally intensive error estimate (pages 212–215).</li>
+                        <li><strong>Bootstrap</strong>: Repeatedly samples the dataset with replacement to create multiple “bootstrap” datasets of the same size. It estimates model parameters (e.g., regression coefficients) across these samples to quantify their variability, useful for confidence intervals (pages 213–222).</li>
+                        <li><strong>Python Lab</strong>: Uses scikit-learn’s cross_validate function to perform k-fold cross-validation and ISLP’s boot_ols for bootstrap analysis, enabling efficient computation of error estimates and variability (pages 216–228).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_05.3_Cross_Validation_and_the_Bootstrap.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Practical Tip</h3>
+                    <p>Scikit-learn’s cross-validation tools streamline robust model evaluation (page 225).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter6" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 6: Linear Model Selection and Regularization</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Discusses methods to enhance linear regression by selecting the best predictors, applying shrinkage, or reducing dimensions, improving prediction accuracy and interpretability. Python labs use datasets like Hitters (pages 229–288).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Subset Selection</strong>: Identifies the best subset of predictors to include in the model. Best subset selection tests all possible combinations, while stepwise methods (forward or backward) iteratively add or remove predictors based on criteria like adjusted R², minimizing overfitting (pages 231–247).</li>
+                        <li><strong>Shrinkage</strong>: Applies regularization to penalize large coefficients, reducing model variance. Ridge regression adds an L2 penalty (λΣβᵢ²) to the loss function, shrinking coefficients toward zero. Lasso adds an L1 penalty (λΣ|βᵢ|), which can set some coefficients to zero, effectively selecting features (pages 249–259).</li>
+                        <li><strong>Dimension Reduction</strong>: Transforms predictors into a smaller set of derived variables. Principal components regression (PCR) uses principal components from PCA as predictors, capturing major data variance. Partial least squares (PLS) creates components that maximize correlation with the response (pages 261–269).</li>
+                        <li><strong>Python Lab</strong>: Implements PCA for dimension reduction and lasso regression using scikit-learn, automating feature selection and regularization on real datasets (pages 267–287).</li>
+                    </ul>
+                    <p class="mt-4">GitHub Lab Notebooks:</p>
+                    <ul class="list-disc pl-6">
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_06.5.1_Subset_Selection.ipynb" class="text-blue-600 hover:underline" target="_blank">Subset Selection</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_06.5.2_Ridge_Regression_and_the_Lasso.ipynb" class="text-blue-600 hover:underline" target="_blank">Ridge Regression and Lasso</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_06.5.3_PCR_and_PLS_Regression.ipynb" class="text-blue-600 hover:underline" target="_blank">PCR and PLS Regression</a></li>
+                    </ul>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Regularization Insight</h3>
+                    <p>Lasso’s sparsity (setting coefficients to zero) aids feature selection, implemented via scikit-learn’s Lasso class (page 287).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter8" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 8: Tree-Based Methods</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Introduces decision trees and ensemble methods like random forests for regression and classification, offering flexible, interpretable models. Python labs use datasets like Heart (pages 331–363).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Decision Trees</strong>: Divide the predictor space into regions using recursive binary splits, choosing splits to minimize residual sum of squares (RSS) for regression or classification error (e.g., Gini index) for classification. Each region assigns a single prediction, creating a tree-like structure (pages 333–342).</li>
+                        <li><strong>Bagging and Random Forests</strong>: Bagging averages predictions from multiple trees trained on bootstrap samples, reducing variance. Random forests extend bagging by randomly selecting a subset of predictors at each split, decorrelating trees to further improve accuracy (pages 343–356).</li>
+                        <li><strong>Boosting</strong>: Builds trees sequentially, where each tree corrects errors of the previous ones by focusing on mispredicted observations. It combines weak learners into a strong model, using weights to prioritize difficult cases (pages 357–360).</li>
+                        <li><strong>Python Lab</strong>: Uses scikit-learn’s DecisionTreeClassifier for single trees and RandomForestClassifier for ensemble methods, enabling practical application on classification tasks (pages 355–362).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_08.3_Decision_Trees.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Ensemble Power</h3>
+                    <p>Random forests’ feature importance metrics, computed via scikit-learn, aid interpretability (page 367).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter9" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 9: Support Vector Machines</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Covers support vector machines (SVMs) for classification, focusing on finding optimal boundaries between classes. Python labs use synthetic datasets (pages 367–397).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Maximal Margin Classifier</strong>: Finds a hyperplane that separates two classes with the widest possible margin, defined by the distance to the nearest data points (support vectors). It works only for perfectly separable data, maximizing class separation (pages 368–378).</li>
+                        <li><strong>Support Vector Classifier</strong>: Extends the maximal margin classifier to handle non-separable data by allowing some misclassifications with a soft margin. It uses a cost parameter to balance margin width and classification errors, improving robustness (pages 379–382).</li>
+                        <li><strong>SVMs with Kernels</strong>: Uses kernel functions (e.g., radial basis function, RBF) to transform data into a higher-dimensional space where a linear boundary can separate non-linearly separable classes, enabling complex pattern recognition (pages 383–388).</li>
+                        <li><strong>Python Lab</strong>: Implements SVC (support vector classifier) with linear and RBF kernels in scikit-learn, allowing practical classification on non-linear datasets (pages 388–397).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_09.6_Support_Vector_Machines.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Kernel Flexibility</h3>
+                    <p>RBF kernels in scikit-learn enable SVMs to capture complex patterns (page 399).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter10" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 10: Deep Learning</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Introduces neural networks for complex tasks like image and text classification, covering architectures like multilayer and convolutional networks. Python labs use PyTorch and Keras on datasets like MNIST (pages 399–464).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Single and Multilayer Neural Networks</strong>: Single-layer networks apply linear transformations followed by non-linear activation functions (e.g., sigmoid) to model complex relationships. Multilayer networks (MLPs) add hidden layers, increasing capacity to learn intricate patterns through backpropagation (pages 400–412).</li>
+                        <li><strong>Convolutional Neural Networks (CNNs)</strong>: Designed for image data, CNNs use convolution layers to apply filters that detect features like edges or textures, followed by pooling layers to reduce spatial dimensions, preserving key information while reducing computation (pages 413–418).</li>
+                        <li><strong>Recurrent Neural Networks (RNNs)</strong>: Handle sequential data (e.g., text) by maintaining a “memory” of previous inputs through loops, allowing the model to process sequences like sentences or time series, capturing temporal dependencies (pages 424–430).</li>
+                        <li><strong>Python Lab</strong>: Uses PyTorch to build CNNs for image classification (e.g., MNIST digits) and Keras for RNNs on text data (e.g., IMDB reviews), providing practical deep learning implementations (pages 435–464).</li>
+                    </ul>
+                    <p class="mt-4">GitHub Lab Notebooks:</p>
+                    <ul class="list-disc pl-6">
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.1_A_Single_Layer_Network_on_the_Hitters_Data.ipynb" class="text-blue-600 hover:underline" target="_blank">Single Layer Network</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.2_A_Multilayer_Network_on_the_MNIST_Digit_Data.ipynb" class="text-blue-600 hover:underline" target="_blank">Multilayer Network</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.3_Convolutional_Neural_Networks.ipynb" class="text-blue-600 hover:underline" target="_blank">Convolutional Neural Networks</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.4_Using_Pretrained_CNN_Models.ipynb" class="text-blue-600 hover:underline" target="_blank">Pretrained CNN Models</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.5_IMDb_Document_Classification.ipynb" class="text-blue-600 hover:underline" target="_blank">IMDb Document Classification</a></li>
+                        <li><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_10.9.6_Recurrent_Neural_Networks.ipynb" class="text-blue-600 hover:underline" target="_blank">Recurrent Neural Networks</a></li>
+                    </ul>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Deep Learning Tools</h3>
+                    <p>PyTorch’s flexibility simplifies CNN implementation for image tasks (page 446).</p>
+                </aside>
+            </div>
+        </section>
+
+        <section id="chapter12" class="mb-12">
+            <h2 class="text-2xl font-semibold mb-4">Chapter 12: Unsupervised Learning</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="md:col-span-2">
+                    <h3 class="text-xl font-medium mb-2">Main Idea</h3>
+                    <p>Covers unsupervised learning for discovering patterns without labeled data, using techniques like PCA and clustering. Python labs use datasets like NCI60 (pages 503–556).</p>
+                    <h3 class="text-xl font-medium mt-4 mb-2">Techniques</h3>
+                    <ul class="list-disc pl-6">
+                        <li><strong>Principal Component Analysis (PCA)</strong>: Reduces data dimensionality by transforming predictors into a smaller set of principal components that capture the most variance. Each component is a linear combination of original features, useful for visualization or simplifying models (pages 506–520).</li>
+                        <li><strong>K-Means and Hierarchical Clustering</strong>: K-means groups data into k clusters by minimizing the distance between points and cluster centroids, iteratively updating assignments. Hierarchical clustering builds a tree (dendrogram) by merging or splitting clusters based on similarity, offering a hierarchy of groupings (pages 521–537).</li>
+                        <li><strong>Handling Missing Data</strong>: Adapts unsupervised methods to handle incomplete datasets by imputing missing values (e.g., using mean or model-based estimates) or modifying algorithms to ignore missing entries, ensuring robust analysis (pages 515–525).</li>
+                        <li><strong>Python Lab</strong>: Uses scikit-learn’s PCA to reduce dimensions and AgglomerativeClustering for hierarchical clustering, visualizing results like dendrograms on real datasets (pages 536–552).</li>
+                    </ul>
+                    <p class="mt-4"><a href="https://github.com/ogulcancicek/An-Introduction-to-Statistical-Learning-Python/blob/main/Notebooks/Lab_12.5_Unsupervised_Learning.ipynb" class="text-blue-600 hover:underline" target="_blank">GitHub Lab Notebook</a></p>
+                </div>
+                <aside class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium mb-2">Sidebar: Clustering Insight</h3>
+                    <p>Scikit-learn’s clustering tools visualize dendrograms for hierarchical clustering (page 549).</p>
+                </aside>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6">
+        <div class="container mx-auto px-4">
+            <p>© 2025 MSDA9223 Assignment. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
